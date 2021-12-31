@@ -1,20 +1,44 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-
+import { useState, useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import { NativeBaseProvider, Text, Box } from "native-base";
+import { Platform } from "react-native";
+import Card from "./components/Card";
 export default function App() {
+  const [countryInfo, setCountryInfo] = useState({});
+
+  useEffect(() => {
+    fetch("https://disease.sh/v3/covid-19/all")
+      .then((response) => response.json())
+      .then((data) => {
+        setCountryInfo(data);
+      });
+  }, []);
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NativeBaseProvider>
+      <Box
+        style={{
+          flexDirection: Platform.OS == "web" ? "row" : "column",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Card
+          title="Coronavirus Cases"
+          label="yellow.500"
+          todayCases={countryInfo.todayCases}
+        />
+        <Card
+          title="Recoverd"
+          label="green.500"
+          todayCases={countryInfo.todayCases}
+        />
+        <Card
+          title="Deaths"
+          label="red.500"
+          todayCases={countryInfo.todayCases}
+        />
+        <StatusBar style="auto" />
+      </Box>
+    </NativeBaseProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
