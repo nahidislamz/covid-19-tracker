@@ -1,4 +1,4 @@
-#React Native Covid-19 Tracker
+# React Native Covid-19 Tracker
 
 ## Supported Platform
 
