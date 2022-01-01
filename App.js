@@ -1,44 +1,58 @@
 import { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { NativeBaseProvider, Text, Box } from "native-base";
-import { Platform } from "react-native";
-import Card from "./components/Card";
+import {
+  NativeBaseProvider,
+  Spinner,
+  Center,
+  Box,
+  Text,
+  HStack,
+} from "native-base";
+import { Cards, SelectCountry, Chart } from "./components/";
+import { fetchData } from "./api";
 export default function App() {
-  const [countryInfo, setCountryInfo] = useState({});
+  const [data, setData] = useState([]);
+  const [country, setCountry] = useState("");
+
+  const handleCountryChange = async (country) => {
+    const d = await fetchData(country);
+    setCountry(country);
+    setData(d);
+  };
 
   useEffect(() => {
-    fetch("https://disease.sh/v3/covid-19/all")
-      .then((response) => response.json())
-      .then((data) => {
-        setCountryInfo(data);
-      });
+    const fetchAPI = async () => {
+      const initialData = await fetchData();
+      setData(initialData);
+    };
+    fetchAPI();
   }, []);
+
   return (
     <NativeBaseProvider>
-      <Box
-        style={{
-          flexDirection: Platform.OS == "web" ? "row" : "column",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Card
-          title="Coronavirus Cases"
-          label="yellow.500"
-          todayCases={countryInfo.todayCases}
-        />
-        <Card
-          title="Recoverd"
-          label="green.500"
-          todayCases={countryInfo.todayCases}
-        />
-        <Card
-          title="Deaths"
-          label="red.500"
-          todayCases={countryInfo.todayCases}
-        />
-        <StatusBar style="auto" />
-      </Box>
+      {data.length === 0 ? (
+        <Center flex={1} margin="auto" flexDirection="column">
+          <Spinner size="lg" />
+        </Center>
+      ) : (
+        <Box>
+          <HStack w="100%" mt="2">
+            <Text mx="3" px="4" my="1" fontSize="22" bold>
+              {country ? country : "Global"}
+            </Text>
+            <SelectCountry handleCountryChange={handleCountryChange} />
+          </HStack>
+          <Cards
+            title="Confirmed Cases"
+            confirmed={data.confirmed.value}
+            recovered={data.recovered.value}
+            deaths={data.deaths.value}
+            lastUpdate={new Date(data.lastUpdate).toDateString()}
+          />
+          <Chart data={data} country={country} />
+          <StatusBar style="auto" />
+        </Box>
+      )}
     </NativeBaseProvider>
   );
 }
