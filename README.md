@@ -6,4 +6,4 @@
 
 ---
 
-![ui](./screenshots.ui.png)
+![Covid-19 Tracker](screenshots/ui.png)
